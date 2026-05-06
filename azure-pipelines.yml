@@ -1,7 +1,3 @@
- # Docker
-# Build a Docker image
-# https://docs.microsoft.com/azure/devops/pipelines/languages/docker
-
 trigger:
 - master
 
@@ -13,17 +9,25 @@ variables:
 
 stages:
 - stage: Build
-  displayName: Build image
+  displayName: Build project
   jobs:
   - job: Build
     displayName: Build
     pool:
-      name: Default
+      name: Default  # 用你的 Windows 电脑
+
     steps:
-    - task: Docker@2
-      displayName: Build an image
+    # 安装 Node.js（必须）
+    - task: NodeTool@0
       inputs:
-        command: build
-        dockerfile: '$(Build.SourcesDirectory)/Dockerfile'
-        tags: |
-          $(tag)
+        versionSpec: '16.x'
+        checkLatest: true
+      displayName: 'Install Node.js'
+
+    # 安装依赖
+    - script: npm install
+      displayName: 'npm install'
+
+    # 编译项目（生成 dist）
+    - script: npm run build
+      displayName: 'npm run build'
